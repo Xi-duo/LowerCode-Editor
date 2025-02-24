@@ -1,6 +1,9 @@
+import LowerEditor from "./editor"
 function App() {
   return(
-    <div></div>
+    <div>
+      <LowerEditor></LowerEditor>
+    </div>
   )
 }
 
