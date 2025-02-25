@@ -4,43 +4,53 @@ export interface Component {
     id: number;
     name: string;
     props: any;
+    desc:string;
     children?: Component[];
     parentId?: number;
 }
-
+//click事件要保存当前的id和组件，要在右边渲染属性，所以cur保存到store
 interface State {
     components: Component[];
+    curComponentId?: number | null;
+    curComponent?: Component | null;
 }
 
 interface Action {
-    addComponent: (component: Component,parentId?:number)=>void;
-    deleteComponent: (componentId: number)=>void
-    updateComponnetProps: (componentId: number, props: any)=>void;
+    addComponent: (component: Component, parentId?: number) => void;
+    deleteComponent: (componentId: number) => void
+    updateComponnetProps: (componentId: number, props: any) => void;
+    setCurComponentId: (componentId: number | null) => void
 }
 
 export const useComponentsStore = create<State & Action>(
-    ((set,get) => ({
+    ((set, get) => ({
         components: [
             {
-                id:1,
+                id: 1,
                 name: 'Page',
                 props: {},
                 desc: '页面'
             }
         ],
+        curComponentId: null,
+        curComponent: null,
+        setCurComponentId: (componentId) => set((state) => ({
+            curComponentId: componentId,
+            curComponent: getComponentById(componentId, state.components)
+        })),
         //添加组件，传入要添加的组件和要加入的父组件id
-        addComponent: (component, parentId) => 
-            set((state)=>{
+        addComponent: (component, parentId) =>
+            set((state) => {
                 //拿到父组件
-                if(parentId){
+                if (parentId) {
                     const parentComponent = getComponentById(
                         parentId,
                         state.components
                     );
-                //成功拿到组件
-                    if(parentComponent){
+                    //成功拿到组件
+                    if (parentComponent) {
                         //在子组件数组内部添加新增的组件
-                        if(parentComponent.children){
+                        if (parentComponent.children) {
                             parentComponent.children.push(component)
                         } else {
                             //如果没有子组件就直接添加子组件数组
@@ -50,59 +60,59 @@ export const useComponentsStore = create<State & Action>(
                     //新增组件的父组件设置
                     component.parentId = parentId;
                     //返回修改后的state
-                    return {components: [...state.components]}
+                    return { components: [...state.components] }
                 }
                 //如果没有找到父组件的话，就在根部修改state
-                return {components: [...state.components, component]}
+                return { components: [...state.components, component] }
             }),
-        deleteComponent: (componentId) =>{
+        deleteComponent: (componentId) => {
             //如果不合法这个就直接返回了
-            if(!componentId) return ;
+            if (!componentId) return;
             //拿到这个id的组件
-            const component  = getComponentById(componentId,get().components)
-            if(component?.parentId){
+            const component = getComponentById(componentId, get().components)
+            if (component?.parentId) {
                 //有父组件就拿过来
-                const parentComponent =getComponentById(
+                const parentComponent = getComponentById(
                     component.parentId,
                     get().components
                 );
                 //过滤掉父组件内部的这个元素
-                if(parentComponent){
+                if (parentComponent) {
                     parentComponent.children = parentComponent?.children?.filter(
                         (item) => item.id !== +componentId
                     );
-                    
-                    set({components:[...get().components]})
+
+                    set({ components: [...get().components] })
                 }
             }
-        } ,
+        },
         //传入要更新的组件id和更新的参数
-        updateComponnetProps: (componentId, props) => 
+        updateComponnetProps: (componentId, props) =>
             set((state) => {
                 //先拿到这个组件
-                const component = getComponentById(componentId,state.components)
-                if(component){
+                const component = getComponentById(componentId, state.components)
+                if (component) {
                     //传入更新的参数
-                    component.props = {...component.props,...props};
+                    component.props = { ...component.props, ...props };
 
-                    return {components: [...state.components]}
+                    return { components: [...state.components] }
                 }
                 //如果没拿到就还是原样
-                return {components:[...state.components]}
+                return { components: [...state.components] }
             }),
     })
-  )
+    )
 )
 
-export function getComponentById(id: number, components: Component[]): Component | null{
-    if(!id) return null
+export function getComponentById(id: number, components: Component[]): Component | null {
+    if (!id) return null
 
-    for(const component of components) {
+    for (const component of components) {
         //能找到就返回，暂时没找到的话有孩子就遍历孩子
-        if(component.id == id) return component
-        if(component.children && component.children.length > 0) {
+        if (component.id == id) return component
+        if (component.children && component.children.length > 0) {
             const result = getComponentById(id, component.children);
-            if(result!==null) return result
+            if (result !== null) return result
         }
     }
     return null
