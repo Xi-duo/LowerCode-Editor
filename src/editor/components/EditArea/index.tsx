@@ -1,28 +1,12 @@
-import React, { useEffect } from "react";
+import React, { MouseEventHandler, useEffect, useState } from "react";
 import { Component, useComponentsStore } from "../../stores/components"
 import { useComponentConfigStore } from "../../stores/component-config";
+import HoverMask from "../HoverMask";
 
 export function EditArea() {
 
     const { components, addComponent } = useComponentsStore();
     const { componentConfig } = useComponentConfigStore()
-
-    // useEffect(() => {
-    //     addComponent({
-    //         id: 222,
-    //         name: 'Container',
-    //         props: {},
-    //         children: []
-    //     }, 1);
-    //     addComponent({
-    //         id: 333,
-    //         name: 'Button',
-    //         props: {
-    //             text: '无敌'
-    //         },
-    //         children: []
-    //     }, 222)
-    // }, []);
 
     //传入参数，也就是json内部描述结构的那几个数组
     function renderComponents(components: Component[]): React.ReactNode {
@@ -46,16 +30,46 @@ export function EditArea() {
                     ...config.defaultProps,
                     ...component.props,
                 },
+
                 //递归渲染
                 renderComponents(component.children || [])
             )
         })
+
+    }
+    //被hover的组件id
+    const [hoverComponentId, setHoverComponentId] = useState<number>();
+
+    const handleMouseOver: MouseEventHandler = (e) => {
+        //获取触发事件的元素一直向上回到html根元素的路径数组
+        //原本可以使用e.composedPath但是react内部的event是合成事件，为了找到原生事件的属性
+        //于是取了e.nativeEvent.composedPath
+        const path = e.nativeEvent.composedPath();
+        //遍历这个数组，找到带有组件设置id的位置
+        for (let i = 0; i < path.length; i += 1) {
+            const ele = path[i] as HTMLElement;
+
+            const componentId = ele.dataset?.componentId;
+            if (componentId) {
+                setHoverComponentId(+componentId);
+                return;
+            }
+        }
     }
 
-    return <div className="h-[100%]">
-        <pre>
-            {/* {JSON.stringify(components, null, 2)} */}
+    return <div className="h-[100%] edit-area" onMouseOver={handleMouseOver} onMouseLeave={() => setHoverComponentId(undefined)}>
+        {/* <pre>
+            {JSON.stringify(components, null, 2)}
         </pre>
+        {hoverComponentId} */}
         {renderComponents(components)}
+        {hoverComponentId && (
+            <HoverMask
+                portalWrapperClassName='portal-wrapper'
+                containerClassName='edit-area'
+                componentId={hoverComponentId}
+            />
+        )}
+        <div className="portal-wrapper"></div>
     </div>
 }
