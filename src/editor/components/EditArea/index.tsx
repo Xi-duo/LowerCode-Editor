@@ -27,6 +27,7 @@ export function EditArea() {
                     key: component.id,
                     id: component.id,
                     name: component.name,
+                    styles:component.styles,
                     //默认参数就是组件内部含有的比如type和text
                     ...config.defaultProps,
                     ...component.props,

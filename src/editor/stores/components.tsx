@@ -1,10 +1,12 @@
+import { CSSProperties } from "react";
 import { create } from "zustand";
 //基本元素Component属性
 export interface Component {
     id: number;
     name: string;
     props: any;
-    desc:string;
+    styles?: CSSProperties;
+    desc: string;
     children?: Component[];
     parentId?: number;
 }
@@ -19,6 +21,8 @@ interface Action {
     addComponent: (component: Component, parentId?: number) => void;
     deleteComponent: (componentId: number) => void
     updateComponnetProps: (componentId: number, props: any) => void;
+    //更新styles的函数
+    updateComponentStyles: (componentId: number, styles: CSSProperties,replace?:boolean) => void;
     setCurComponentId: (componentId: number | null) => void
 }
 
@@ -100,6 +104,17 @@ export const useComponentsStore = create<State & Action>(
                 //如果没拿到就还是原样
                 return { components: [...state.components] }
             }),
+        updateComponentStyles: (componentId, styles,replace) => {
+            set((state) => {
+                const component = getComponentById(componentId, state.components)
+                if (component) {
+                    //在编辑style结束后，如果删除style的话不会回复原样，设置replace选择整个替换
+                    component.styles = replace?{...styles}:{ ...component.styles, ...styles }
+                    return { components: [...state.components] }
+                }
+                return { components: [...state.components] }
+            })
+        }
     })
     )
 )
