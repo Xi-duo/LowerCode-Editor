@@ -13,6 +13,7 @@ export interface Component {
 //click事件要保存当前的id和组件，要在右边渲染属性，所以cur保存到store
 interface State {
     components: Component[];
+    mode: 'edit' | 'preview'
     curComponentId?: number | null;
     curComponent?: Component | null;
 }
@@ -22,8 +23,9 @@ interface Action {
     deleteComponent: (componentId: number) => void
     updateComponnetProps: (componentId: number, props: any) => void;
     //更新styles的函数
-    updateComponentStyles: (componentId: number, styles: CSSProperties,replace?:boolean) => void;
+    updateComponentStyles: (componentId: number, styles: CSSProperties, replace?: boolean) => void;
     setCurComponentId: (componentId: number | null) => void
+    setMode: (mode: State['mode']) => void
 }
 
 export const useComponentsStore = create<State & Action>(
@@ -38,6 +40,8 @@ export const useComponentsStore = create<State & Action>(
         ],
         curComponentId: null,
         curComponent: null,
+        mode: 'edit',
+        setMode: (mode) => set({ mode }),
         setCurComponentId: (componentId) => set((state) => ({
             curComponentId: componentId,
             curComponent: getComponentById(componentId, state.components)
@@ -104,14 +108,14 @@ export const useComponentsStore = create<State & Action>(
                 //如果没拿到就还是原样
                 return { components: [...state.components] }
             }),
-            //先找到对应的组件
-        updateComponentStyles: (componentId, styles,replace) => {
+        //先找到对应的组件
+        updateComponentStyles: (componentId, styles, replace) => {
             set((state) => {
                 const component = getComponentById(componentId, state.components)
                 if (component) {
                     //在编辑style结束后，如果删除style的话不会回复原样，设置replace选择整个替换
                     //与原来的样式一致的话会导致删除无法恢复以前的样子，所以replace用直接设置的状态整个替换styles
-                    component.styles = replace?{...styles}:{ ...component.styles, ...styles }
+                    component.styles = replace ? { ...styles } : { ...component.styles, ...styles }
                     return { components: [...state.components] }
                 }
                 return { components: [...state.components] }

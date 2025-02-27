@@ -15,13 +15,13 @@ export function EditArea() {
             //取出传入的每个参数所对应的组件，通过传入的name和组件的索引名称对应
             const config = componentConfig?.[component.name]
             //如果没有对应的就返回
-            if (!config?.component) {
+            if (!config?.dev) {
                 return null
             }
 
             return React.createElement(
                 //组件component
-                config.component,
+                config.dev,
                 {
                     //id和参数，id和props来自描述的id
                     key: component.id,
