@@ -7,7 +7,7 @@ import { useEffect } from "react";
 export function ComponentAttr(){
     const [form] = Form.useForm();
     
-    const{curComponentId,curComponent,updateComponnetProps } = useComponentsStore()
+    const{curComponentId,curComponent,updateComponentProps } = useComponentsStore()
 
     const {componentConfig} = useComponentConfigStore();
 
@@ -31,7 +31,7 @@ export function ComponentAttr(){
 //表单变化的时候同步到store
     function valueChange(changeValues:ComponentConfig){
         if(curComponentId){
-            updateComponnetProps(curComponentId,changeValues)
+            updateComponentProps(curComponentId,changeValues)
         }
     }
     return(<Form

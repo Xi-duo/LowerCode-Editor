@@ -1,3 +1,4 @@
+//对组件的状态和消费进行标识
 import { CSSProperties } from "react";
 import { create } from "zustand";
 //基本元素Component属性
@@ -21,7 +22,7 @@ interface State {
 interface Action {
     addComponent: (component: Component, parentId?: number) => void;
     deleteComponent: (componentId: number) => void
-    updateComponnetProps: (componentId: number, props: any) => void;
+    updateComponentProps: (componentId: number, props: any) => void;
     //更新styles的函数
     updateComponentStyles: (componentId: number, styles: CSSProperties, replace?: boolean) => void;
     setCurComponentId: (componentId: number | null) => void
@@ -95,7 +96,7 @@ export const useComponentsStore = create<State & Action>(
             }
         },
         //传入要更新的组件id和更新的参数
-        updateComponnetProps: (componentId, props) =>
+        updateComponentProps: (componentId, props) =>
             set((state) => {
                 //先拿到这个组件
                 const component = getComponentById(componentId, state.components)

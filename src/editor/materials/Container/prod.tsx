@@ -1,6 +1,6 @@
 import { CommonComponentProps } from '../../interface';
 
-const Container = ({ id, children, styles }: CommonComponentProps) => {
+const Container = ({ children, styles }: CommonComponentProps) => {
 
     return (
         <div 
