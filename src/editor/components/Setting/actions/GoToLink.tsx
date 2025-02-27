@@ -1,32 +1,43 @@
-import { Input } from "antd";
-import { ComponentEvent } from "../../../stores/component-config";
+import { useState } from "react";
 import { useComponentsStore } from "../../../stores/components";
+import TextArea from "antd/es/input/TextArea";
+
+export interface GoToLinkConfig {
+    type: 'goToLink',
+    url: string
+}
+
+export interface GoToLinkProps {
+    defaultValue?: string
+    onChange?: (config: GoToLinkConfig) => void
+}
 //可能会有很多的动作，所以抽离成组件
-export function GoToLink(props: { event: ComponentEvent }) {
+export function GoToLink(props: GoToLinkProps) {
 
-    const { event } = props
+    const { defaultValue, onChange } = props
 
-    const { curComponentId, curComponent, updateComponentProps } = useComponentsStore()
+    const { curComponentId } = useComponentsStore()
+    const [value, setValue] = useState(defaultValue);
 
-    function urlChange(eventName: string, value: string) {
-        if (!curComponentId) return
-//链接改变的时候更新props信息，传递到store内部作为props参数的一个对象
-        updateComponentProps(curComponentId, {
-            [eventName]: {
-                ...curComponent?.props?.[eventName],
-                url: value
-            }
-        })
+    function urlChange(value: string) {
+        if (!curComponentId) return;
+
+        setValue(value);
+
+        onChange?.({
+            type: 'goToLink',
+            url: value
+        });
     }
 
-    return <div className='mt-[10px]'>
+    return <div className='mt-[40px]'>
         <div className='flex items-center gap-[10px]'>
-            <div>链接</div>
+            <div>跳转链接</div>
             <div>
-                <Input
-                    onChange={(e) => { urlChange(event.name, e.target.value) }}
-                    //值设为获取到的url
-                    value={curComponent?.props?.[event.name]?.url}
+                <TextArea
+                    style={{ height: 200, width: 500, border: '1px solid #000' }}
+                    onChange={(e) => { urlChange(e.target.value) }}
+                    value={value || ''}
                 />
             </div>
         </div>
