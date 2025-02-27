@@ -31,7 +31,6 @@ export function ComponentStyle() {
         for (let key in css) {
             let value = css[key]
             console.log(value);
-
             if (!value) {
                 continue
             }

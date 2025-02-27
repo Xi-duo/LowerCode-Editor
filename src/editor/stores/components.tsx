@@ -117,6 +117,17 @@ export const useComponentsStore = create<State & Action>(
                 return { components: [...state.components] }
             })
         }
+        updateComponentStyles: (componentId, styles,replace) => {
+            set((state) => {
+                const component = getComponentById(componentId, state.components)
+                if (component) {
+                    //在编辑style结束后，如果删除style的话不会回复原样，设置replace选择整个替换
+                    component.styles = replace?{...styles}:{ ...component.styles, ...styles }
+                    return { components: [...state.components] }
+                }
+                return { components: [...state.components] }
+            })
+        }
     })
     )
 )
