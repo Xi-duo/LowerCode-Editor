@@ -26,19 +26,22 @@ function SelectedMask({ containerClassName, portalWrapperClassName, componentId 
         labelTop: 0,
         labelLeft: 0,
     });
-
+    //右侧要渲染参数之类的，所以通过store传递curComponentId
     const { components, curComponentId, deleteComponent, curComponent, setCurComponentId } = useComponentsStore();
-
+    //点击不同组件的时候刷新框选
     useEffect(() => {
         updatePosition();
     }, [componentId]);
 
-
+    //让添加或者删除组件的时候可以让选中框自动刷新
+    //在改变宽高的时候到渲染完成在getBoundingClientRect是需要一定时间的，会导致无法改变，所以设置一个延迟
     useEffect(() => {
-        updatePosition();
+        setTimeout(() => {
+            updatePosition();
+        }, 200);
     }, [components]);
 
-
+    //页面变化的时候刷新，也算是响应式的跟随框选
     useEffect(() => {
         const resizeHandler = () => {
             updatePosition();
@@ -60,7 +63,7 @@ function SelectedMask({ containerClassName, portalWrapperClassName, componentId 
 
         const { top, left, width, height } = node.getBoundingClientRect();
         const { top: containerTop, left: containerLeft } = container.getBoundingClientRect();
-
+        //计算组件标签名渲染的位置
         let labelTop = top - containerTop + container.scrollTop;
         let labelLeft = left - containerLeft + width;
 
@@ -87,12 +90,12 @@ function SelectedMask({ containerClassName, portalWrapperClassName, componentId 
         deleteComponent(curComponentId!);
         setCurComponentId(null);
     }
-
+    //获取当前选择的组件，防止每次同样点击的时候重复调用函数
     const curSelectedComponent = useMemo(() => {
         return getComponentById(componentId, components);
     }, [componentId]);
 
-
+    //找到父组件，便于在右边渲染父组件信息
     const parentComponents = useMemo(() => {
         const parentComponents = [];
         let component = curComponent;
