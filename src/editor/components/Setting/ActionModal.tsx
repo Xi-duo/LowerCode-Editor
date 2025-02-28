@@ -59,7 +59,7 @@ export function ActionModal(props: ActionModalProps) {
                 }} />
             }
             {
-                key === '自定义 JS' && <CustomJS key="customJS" defaultValue={action?.type === 'customJS' ? action.code : ''} onChange={(config) => {
+                key === '自定义JS' && <CustomJS key="customJS" defaultValue={action?.type === 'customJS' ? action.code : ''} onChange={(config) => {
                     setCurConfig(config);
                 }} />
             }

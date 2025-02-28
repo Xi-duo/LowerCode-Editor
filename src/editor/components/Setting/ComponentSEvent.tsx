@@ -56,27 +56,36 @@ export function ComponentEvent() {
                     (curComponent.props[event.name]?.actions || []).map((item: ActionConfig, index: number) => {
                         return <div>
                             {
-                                item.type === 'goToLink' ? <div className='border border-[#aaa] m-[10px] p-[10px]'>
+                                item.type === 'goToLink' ? <div className='border border-[#aaa] m-[10px] p-[10px] relative'>
                                     <div className='text-[blue]'>跳转链接</div>
                                     <div>{item.url}</div>
                                     <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
-                                        onClick={() => editAction(item)}
+                                        onClick={() => editAction(item, index)}
                                     ><EditOutlined /></div>
-                                    <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
+                                    <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
                                         onClick={() => deleteAction(event, index)}
-                                    ><EditOutlined /></div>
+                                    ><DeleteOutlined /></div>
                                 </div> : null
                             }
                             {
-                                item.type === 'showMessage' ? <div className='border border-[#aaa] m-[10px] p-[10px]'>
+                                item.type === 'showMessage' ? <div className='border border-[#aaa] m-[10px] p-[10px] relative'>
                                     <div className='text-[blue]'>消息弹窗</div>
                                     <div>{item.config.type}</div>
                                     <div>{item.config.text}</div>
+                                    <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
+                                        onClick={() => editAction(item, index)}
+                                    ><EditOutlined /></div>
+                                    <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
+                                        onClick={() => deleteAction(event, index)}
+                                    ><DeleteOutlined /></div>
                                 </div> : null
                             }
                             {
                                 item.type === 'customJS' ? <div key="customJS" className='border border-[#aaa] m-[10px] p-[10px] relative'>
                                     <div className='text-[blue]'>自定义 JS</div>
+                                    <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
+                                        onClick={() => editAction(item, index)}
+                                    ><EditOutlined /></div>
                                     <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
                                         onClick={() => deleteAction(event, index)}
                                     ><DeleteOutlined /></div>
@@ -101,17 +110,18 @@ export function ComponentEvent() {
                     })
                 }
             })
+        } else {
+            updateComponentProps(curComponent.id, {
+                [curEvent.name]: {
+                    actions: [
+                        ...(curComponent.props[curEvent.name]?.actions || []),
+                        config
+                    ]
+                }
+            })
         }
-        updateComponentProps(curComponent.id, {
-            [curEvent.name]: {
-                actions: [
-                    ...(curComponent.props[curEvent.name]?.actions || []),
-                    config
-                ]
-            }
-        })
         setCurAction(undefined)
-        
+
         setActionModalOpen(false)
     }
 
@@ -120,6 +130,7 @@ export function ComponentEvent() {
         <Collapse className='mb-[10px]' items={items} defaultActiveKey={componentConfig[curComponent.name].events?.map(item => item.name)} />
         {/* 传入函数 */}
         <ActionModal visible={actionModalOpen} handleOk={handleModalOk} action={curAction} handleCancel={() => {
+            setCurAction(undefined)
             setActionModalOpen(false)
         }} />
     </div>
