@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useComponentsStore } from "../../../stores/components";
 import TextArea from "antd/es/input/TextArea";
 
@@ -8,16 +8,21 @@ export interface GoToLinkConfig {
 }
 
 export interface GoToLinkProps {
+    value?: string
     defaultValue?: string
     onChange?: (config: GoToLinkConfig) => void
 }
 //可能会有很多的动作，所以抽离成组件
 export function GoToLink(props: GoToLinkProps) {
 
-    const { defaultValue, onChange } = props
+    const { defaultValue, value: val, onChange } = props
 
     const { curComponentId } = useComponentsStore()
     const [value, setValue] = useState(defaultValue);
+
+    useEffect(() => {
+        setValue(val)
+    }, [val])
 
     function urlChange(value: string) {
         if (!curComponentId) return;

@@ -1,9 +1,8 @@
 import React from "react";
 import { useComponentConfigStore } from "../../stores/component-config";
 import { Component, useComponentsStore } from "../../stores/components"
-import { GoToLinkConfig } from "../Setting/actions/GoToLink";
-import { ShowMessageConfig } from "../Setting/actions/ShowMessage";
 import { message } from "antd";
+import { ActionConfig } from "../Setting/ActionModal";
 //内容跟editarea没差，但只用把josn递归渲染成prod组件
 export function Preview() {
     const { components } = useComponentsStore();
@@ -17,7 +16,7 @@ export function Preview() {
 
             if (eventConfig) {
                 props[event.name] = () => {
-                    eventConfig?.actions?.forEach((action: GoToLinkConfig | ShowMessageConfig) => {
+                    eventConfig?.actions?.forEach((action: ActionConfig) => {
                         if (action.type === 'goToLink') {
                             window.location.href = action.url
                         } else if (action.type === 'showMessage') {
@@ -26,6 +25,15 @@ export function Preview() {
                             } if (action.config.type === 'error') {
                                 message.success(action.config.text)
                             }
+                        } else if (action.type === 'customJS') {
+                            const func = new Function(action.code)
+                            func({
+                                name: component.name,
+                                props: component.props,
+                                showMessage(content:string){
+                                    message.success(content)
+                                }
+                            })
                         }
                     })
                 }

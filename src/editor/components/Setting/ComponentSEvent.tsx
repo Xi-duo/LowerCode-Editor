@@ -3,9 +3,8 @@ import { useComponentsStore } from '../../stores/components';
 import { useComponentConfigStore } from '../../stores/component-config';
 import type { ComponentEvent } from '../../stores/component-config';
 import { useState } from 'react';
-import { ActionModal } from './ActionModal';
-import { GoToLinkConfig } from './actions/GoToLink';
-import { ShowMessageConfig } from './actions/ShowMessage';
+import { ActionConfig, ActionModal } from './ActionModal';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 export function ComponentEvent() {
 
@@ -13,8 +12,32 @@ export function ComponentEvent() {
     const { componentConfig } = useComponentConfigStore();
     const [actionModalOpen, setActionModalOpen] = useState(false)
     const [curEvent, setCurEvent] = useState<ComponentEvent>()
+    const [curAction, setCurAction] = useState<ActionConfig>()
+    const [curActionIndex, setCurActionIndex] = useState<number>()
 
     if (!curComponent) return null;
+
+    function editAction(config: ActionConfig, index: number) {
+        if (!curComponent) {
+            return;
+        }
+        setCurAction(config)
+        setCurActionIndex(index)
+        setActionModalOpen(true);
+    }
+    function deleteAction(event: ComponentEvent, index: number) {
+        if (!curComponent) {
+            return
+        }
+        const actions = curComponent.props[event.name]?.actions;
+        actions.splice(index, 1)
+
+        updateComponentProps(curComponent.id, {
+            [event.name]: {
+                actions: actions
+            }
+        })
+    }
 
     const items: CollapseProps['items'] = (componentConfig[curComponent.name].events || []).map(event => {
         return {
@@ -30,12 +53,18 @@ export function ComponentEvent() {
             </div>,
             children: <div>
                 {
-                    (curComponent.props[event.name]?.actions || []).map((item: GoToLinkConfig | ShowMessageConfig) => {
+                    (curComponent.props[event.name]?.actions || []).map((item: ActionConfig, index: number) => {
                         return <div>
                             {
                                 item.type === 'goToLink' ? <div className='border border-[#aaa] m-[10px] p-[10px]'>
                                     <div className='text-[blue]'>跳转链接</div>
                                     <div>{item.url}</div>
+                                    <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
+                                        onClick={() => editAction(item)}
+                                    ><EditOutlined /></div>
+                                    <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
+                                        onClick={() => deleteAction(event, index)}
+                                    ><EditOutlined /></div>
                                 </div> : null
                             }
                             {
@@ -45,17 +74,34 @@ export function ComponentEvent() {
                                     <div>{item.config.text}</div>
                                 </div> : null
                             }
+                            {
+                                item.type === 'customJS' ? <div key="customJS" className='border border-[#aaa] m-[10px] p-[10px] relative'>
+                                    <div className='text-[blue]'>自定义 JS</div>
+                                    <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
+                                        onClick={() => deleteAction(event, index)}
+                                    ><DeleteOutlined /></div>
+                                </div> : null
+                            }
                         </div>
                     })
                 }
             </div>
         }
     })
-    function handleModalOk(config?: GoToLinkConfig | ShowMessageConfig) {
+    function handleModalOk(config?: ActionConfig) {
         if (!config || !curEvent || !curComponent) {
             return;
         }
-//把传入的config共享到store
+        //把传入的config共享到store
+        if (curAction) {
+            updateComponentProps(curComponent.id, {
+                [curEvent.name]: {
+                    actions: curComponent.props[curEvent.name]?.actions.map((item: ActionConfig, index: number) => {
+                        return index === curActionIndex ? config : item
+                    })
+                }
+            })
+        }
         updateComponentProps(curComponent.id, {
             [curEvent.name]: {
                 actions: [
@@ -64,15 +110,16 @@ export function ComponentEvent() {
                 ]
             }
         })
-
+        setCurAction(undefined)
+        
         setActionModalOpen(false)
     }
 
-    
+
     return <div className='px-[10px]'>
         <Collapse className='mb-[10px]' items={items} defaultActiveKey={componentConfig[curComponent.name].events?.map(item => item.name)} />
         {/* 传入函数 */}
-        <ActionModal visible={actionModalOpen} handleOk={handleModalOk} handleCancel={() => {
+        <ActionModal visible={actionModalOpen} handleOk={handleModalOk} action={curAction} handleCancel={() => {
             setActionModalOpen(false)
         }} />
     </div>
