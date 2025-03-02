@@ -1,6 +1,7 @@
 //对组件的状态和消费进行标识
 import { CSSProperties } from "react";
-import { create } from "zustand";
+import { create, StateCreator } from "zustand";
+import { persist } from "zustand/middleware";
 //基本元素Component属性
 export interface Component {
     id: number;
@@ -29,8 +30,7 @@ interface Action {
     setMode: (mode: State['mode']) => void
 }
 
-export const useComponentsStore = create<State & Action>(
-    ((set, get) => ({
+const creator: StateCreator<State & Action> = (set, get) => ({
         components: [
             {
                 id: 1,
@@ -123,8 +123,13 @@ export const useComponentsStore = create<State & Action>(
             })
         }
     })
-    )
-)
+    
+
+
+export const useComponentsStore = create<State & Action>()(persist(creator, {
+    name: 'xxx'
+}));
+
 
 export function getComponentById(id: number, components: Component[]): Component | null {
     if (!id) return null

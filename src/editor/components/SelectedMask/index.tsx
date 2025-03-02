@@ -81,10 +81,20 @@ function SelectedMask({ containerClassName, portalWrapperClassName, componentId 
         });
     }
 
-    const el = useMemo(() => {
-        //选择到专门渲染的那个盒子
-        return document.querySelector(`.${portalWrapperClassName}`)!
-    }, []);
+    // const el = useMemo(() => {
+    //     //选择到专门渲染的那个盒子
+    //     return document.querySelector(`.${portalWrapperClassName}`)!
+    // }, []);
+
+    const [el, setEl] = useState<HTMLElement | null>(null);
+
+    useEffect(() => {
+        const foundEl = document.querySelector(`.${portalWrapperClassName}`);
+        if (foundEl instanceof HTMLElement) {
+            setEl(foundEl);
+        }
+    }, [portalWrapperClassName]);
+    
 
     function handleDelete() {
         deleteComponent(curComponentId!);
@@ -179,7 +189,7 @@ function SelectedMask({ containerClassName, portalWrapperClassName, componentId 
                 </Space>
             </div>
         </>
-    ), el)
+    ), el||document.body)
 }
 
 export default SelectedMask;
