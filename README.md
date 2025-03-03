@@ -1,50 +1,25 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite + Zustand + Tailwind
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 项目概述
 
-Currently, two official plugins are available:
+### 1. 拖拽组件编辑器
+- 使用 `react-dnd` 实现拖拽，支持将物料拖拽到组件树的任意层级。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 2. 状态管理与持久化
+- 通过 `zustand` 管理全局 store，存储组件树、组件配置等数据。
+- 使用 `persist` 中间件进行数据持久化，确保刷新页面后状态不丢失。
 
-## Expanding the ESLint configuration
+### 3. 样式处理
+- 采用 `tailwindcss` 编写样式，无需单独维护 CSS 文件。
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### 4. 组件边界计算
+- 通过 `getBoundingClientRect` 获取 hover、click 组件的边界信息。
+- 动态计算编辑框的位置，确保交互体验流畅。
 
-- Configure the top-level `parserOptions` property like this:
+### 5. 组件树渲染
+- 组件树基于 JSON 递归渲染组件。
+- 采用 `React.cloneElement` 修改组件 `props`，支持动态属性调整。
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### 6. 组件联动
+- 组件通过 `ref` 进行联动，内部使用 `forwardRef` + `useImperativeHandle` 公开方法。
+- 全局注册组件方法，其他组件可随时调用，实现灵活交互。
